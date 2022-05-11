@@ -1,8 +1,7 @@
 package rs.ac.ni.pmf.web2.issues.model.entity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.*;
 import javax.persistence.*;
 import org.hibernate.Hibernate;
 import lombok.*;
@@ -29,6 +28,17 @@ public class UserEntity
 
 	@Enumerated(EnumType.STRING)
 	Gender gender;
+
+	@OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+	@Builder.Default
+	@ToString.Exclude
+	List<TicketEntity> createdTickets = new ArrayList<>();
+
+	public void addCreatedTicket(final TicketEntity ticketEntity)
+	{
+		createdTickets.add(ticketEntity);
+		ticketEntity.setCreatedBy(this);
+	}
 
 	@Transient
 	int age;

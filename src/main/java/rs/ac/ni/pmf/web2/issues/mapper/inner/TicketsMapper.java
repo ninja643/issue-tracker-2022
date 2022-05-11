@@ -12,7 +12,7 @@ public class TicketsMapper
 	{
 		return Ticket.builder()
 			.id(ticketEntity.getId())
-			.username(ticketEntity.getUsername())
+//			.username(ticketEntity.getCreatedBy().getUsername())
 			.title(ticketEntity.getTitle())
 			.description(String.join("#", ticketEntity.getDescription()))
 			.build();
@@ -22,7 +22,7 @@ public class TicketsMapper
 	{
 		return TicketEntity.builder()
 			.id(ticket.getId())
-			.username(ticket.getUsername())
+//			.createdBy(ticket.getUsername())
 			.title(ticket.getTitle())
 			.description(List.of(ticket.getDescription().split("#")))
 			.build();

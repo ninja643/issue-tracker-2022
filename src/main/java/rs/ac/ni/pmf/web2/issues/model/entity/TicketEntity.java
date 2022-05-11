@@ -24,8 +24,9 @@ public class TicketEntity
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	Integer id;
 
-	@Column(length = 30, nullable = false, name = "created_by")
-	String username;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "created_by", nullable = false)
+	UserEntity createdBy;
 
 	String title;
 

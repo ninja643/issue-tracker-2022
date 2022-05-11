@@ -14,6 +14,10 @@ public class DescriptionsConverter implements AttributeConverter<List<String>, S
 	@Override
 	public String convertToDatabaseColumn(List<String> descriptions)
 	{
+		if (descriptions == null)
+		{
+			return null;
+		}
 		return String.join(SEPARATOR, descriptions);
 	}
 
