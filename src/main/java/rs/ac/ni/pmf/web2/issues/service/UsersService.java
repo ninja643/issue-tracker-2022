@@ -1,11 +1,13 @@
 package rs.ac.ni.pmf.web2.issues.service;
 
+import java.util.List;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import rs.ac.ni.pmf.web2.issues.mapper.inner.UsersMapper;
 import rs.ac.ni.pmf.web2.issues.model.entity.UserEntity;
 import rs.ac.ni.pmf.web2.issues.model.inner.User;
 import rs.ac.ni.pmf.web2.issues.repository.UsersRepository;
+import rs.ac.ni.pmf.web2.issues.repository.specification.UsersByTicketCountSpecification;
 
 @Service
 @RequiredArgsConstructor

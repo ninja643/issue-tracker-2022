@@ -8,12 +8,15 @@
 		<version>2.6.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
 	<groupId>rs.ac.ni.pmf.web.2022.issues</groupId>
 	<artifactId>issue-tracker-2022</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Issue Tracking System - 2022</name>
+
 	<properties>
 		<java.version>11</java.version>
+		<springdoc-openapi.version>1.6.8</springdoc-openapi.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -21,9 +24,21 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<!-- Security -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<!-- Database -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-jpamodelgen</artifactId>
 		</dependency>
 
 		<dependency>
@@ -32,11 +47,19 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Documentation -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>${springdoc-openapi.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

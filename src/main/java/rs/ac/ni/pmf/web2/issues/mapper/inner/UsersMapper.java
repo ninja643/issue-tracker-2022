@@ -1,6 +1,5 @@
 package rs.ac.ni.pmf.web2.issues.mapper.inner;
 
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import rs.ac.ni.pmf.web2.issues.model.entity.UserEntity;
@@ -14,13 +13,16 @@ public class UsersMapper
 
 	public UserEntity toEntity(final User user)
 	{
-		return UserEntity.builder()
+		final UserEntity userEntity = UserEntity.builder()
 			.username(user.getUsername())
 			.firstName(user.getFirstName())
 			.lastName(user.getLastName())
 			.gender(user.getGender())
-			.createdTickets(user.getCreatedTickets().stream().map(_ticketsMapper::toEntity).collect(Collectors.toList()))
 			.build();
+
+		user.getCreatedTickets().forEach(ticket -> userEntity.addCreatedTicket(_ticketsMapper.toEntity(ticket, userEntity)));
+
+		return userEntity;
 	}
 
 	public User fromEntity(final UserEntity userEntity)

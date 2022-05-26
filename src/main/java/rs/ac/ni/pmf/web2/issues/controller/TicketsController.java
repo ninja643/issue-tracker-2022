@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import rs.ac.ni.pmf.web2.issues.mapper.api.TicketsDtoMapper;
 import rs.ac.ni.pmf.web2.issues.model.api.TicketDTO;
@@ -12,6 +13,7 @@ import rs.ac.ni.pmf.web2.issues.service.TicketsService;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "Services", description = "Issue Tracker 2022 REST API")
 public class TicketsController
 {
 	private final TicketsService _ticketsService;

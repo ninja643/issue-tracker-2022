@@ -34,10 +34,13 @@ public class UserEntity
 	@ToString.Exclude
 	List<TicketEntity> createdTickets = new ArrayList<>();
 
-	public void addCreatedTicket(final TicketEntity ticketEntity)
+	public void addCreatedTicket(final TicketEntity... tickets)
 	{
-		createdTickets.add(ticketEntity);
-		ticketEntity.setCreatedBy(this);
+		for (final TicketEntity ticketEntity : tickets)
+		{
+			createdTickets.add(ticketEntity);
+			ticketEntity.setCreatedBy(this);
+		}
 	}
 
 	@Transient

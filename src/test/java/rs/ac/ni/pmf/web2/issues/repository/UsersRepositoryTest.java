@@ -7,9 +7,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.jpa.domain.Specification;
 import rs.ac.ni.pmf.web2.issues.model.Gender;
 import rs.ac.ni.pmf.web2.issues.model.entity.TicketEntity;
 import rs.ac.ni.pmf.web2.issues.model.entity.UserEntity;
+import rs.ac.ni.pmf.web2.issues.model.entity.projection.ITicketInfo;
+import rs.ac.ni.pmf.web2.issues.model.entity.projection.TicketCountPerUser;
+import rs.ac.ni.pmf.web2.issues.repository.specification.UsersByTicketCountSpecification;
 
 @DataJpaTest
 class UsersRepositoryTest
@@ -20,11 +24,6 @@ class UsersRepositoryTest
 	@BeforeEach
 	public void initializeData()
 	{
-		final TicketEntity ticket = TicketEntity.builder()
-			.title("Test Ticket")
-			.creationTime(LocalDateTime.now())
-			.build();
-
 		final UserEntity user = UserEntity.builder()
 			.username("pera")
 			.age(20)
@@ -32,17 +31,27 @@ class UsersRepositoryTest
 			.lastName("Petrovic")
 			.gender(Gender.MALE)
 			.build();
-		user.addCreatedTicket(ticket);
+		user.addCreatedTicket(
+			TicketEntity.builder().title("Test Ticket 1").creationTime(LocalDateTime.now()).build(),
+			TicketEntity.builder().title("Test Ticket 2").creationTime(LocalDateTime.now()).build(),
+			TicketEntity.builder().title("Test Ticket 3").creationTime(LocalDateTime.now()).build(),
+			TicketEntity.builder().title("Test Ticket 4").creationTime(LocalDateTime.now()).build(),
+			TicketEntity.builder().title("Test Ticket 5").creationTime(LocalDateTime.now()).build());
 
 		_usersRepository.save(user);
 
-		_usersRepository.save(UserEntity.builder()
+		final UserEntity user2 = UserEntity.builder()
 			.username("mika")
 			.age(30)
 			.firstName("Mika")
 			.lastName("Petrovic")
 			.gender(Gender.MALE)
-			.build());
+			.build();
+		user2.addCreatedTicket(
+			TicketEntity.builder().title("Test Ticket 6").creationTime(LocalDateTime.now()).build(),
+			TicketEntity.builder().title("Test Ticket 7").creationTime(LocalDateTime.now()).build(),
+			TicketEntity.builder().title("Test Ticket 8").creationTime(LocalDateTime.now()).build());
+		_usersRepository.save(user2);
 
 		_usersRepository.save(UserEntity.builder()
 			.username("mira")
@@ -100,26 +109,78 @@ class UsersRepositoryTest
 
 		List<UserEntity> users = _usersRepository.getSomeUsers("mi");
 		assertThat(users).hasSize(3);
-//		users.forEach(System.out::println);
+		//		users.forEach(System.out::println);
+	}
+
+//	@Test
+//	public void shouldExecuteModifyingQueries()
+//	{
+//		assertThat(_usersRepository.findByFirstNameIgnoreCase("Petar")).hasSize(1);
+//		assertThat(_usersRepository.findByFirstNameIgnoreCase("Milorad")).hasSize(0);
+//
+//		final int updatedCnt = _usersRepository.updateFirstName("pera", "Milorad");
+//		assertThat(updatedCnt).isEqualTo(1);
+//
+//		assertThat(_usersRepository.findByFirstNameIgnoreCase("Petar")).hasSize(0);
+//		assertThat(_usersRepository.findByFirstNameIgnoreCase("Milorad")).hasSize(1);
+//
+//		int deletedCnt = _usersRepository.deleteByUsername("mika");
+//		assertThat(deletedCnt).isEqualTo(1);
+//		assertThat(_usersRepository.findAll()).hasSize(3);
+//
+//		deletedCnt = _usersRepository.deleteByUsername("mika423421");
+//		assertThat(deletedCnt).isEqualTo(0);
+//	}
+
+	@Test
+	public void shouldRetrieveDifferentResultTypes()
+	{
+		//_usersRepository.findAll().stream().map(UserEntity::getUsername).forEach(System.out::println);
+		//_usersRepository.getAllUsernames().forEach(System.out::println);
+		//		assertThat(_usersRepository.getAllUsernames()).containsExactlyInAnyOrder("mika", "mira", "mira2", "pera");
+
+//		final List<Object[]> infos = _usersRepository.getTicketsInfosAsObjectArrays();
+//
+//		assertThat(infos).hasSize(8);
+
+//		final List<TicketInfo> infos = _usersRepository.getTicketInfos();
+//		assertThat(infos).hasSize(8);
+
+//		infos.forEach(System.out::println);
+
+		final List<ITicketInfo> infos = _usersRepository.getITicketInfos();
+		assertThat(infos).hasSize(8);
+		infos.forEach(info -> {
+			System.out.format("[%s, %s, %s, %s]%n", info.getFirstName(), info.getLastName(), info.getTicketTitle(), info.getTicketCreationTime());
+		});
 	}
 
 	@Test
-	public void shouldExecuteModifyingQueries()
+	public void shouldGetTicketCountsByUsers()
 	{
-		assertThat(_usersRepository.findByFirstNameIgnoreCase("Petar")).hasSize(1);
-		assertThat(_usersRepository.findByFirstNameIgnoreCase("Milorad")).hasSize(0);
+		final List<TicketCountPerUser> counts = _usersRepository.getTicketCounts();
 
-		final int updatedCnt = _usersRepository.updateFirstName("pera", "Milorad");
-		assertThat(updatedCnt).isEqualTo(1);
+		assertThat(counts).hasSize(4);
+		assertThat(counts.get(0).getUsername()).isEqualTo("mika");
+		assertThat(counts.get(0).getTicketsCount()).isEqualTo(3);
 
-		assertThat(_usersRepository.findByFirstNameIgnoreCase("Petar")).hasSize(0);
-		assertThat(_usersRepository.findByFirstNameIgnoreCase("Milorad")).hasSize(1);
+		assertThat(counts.get(1).getUsername()).isEqualTo("mira");
+		assertThat(counts.get(1).getTicketsCount()).isEqualTo(0);
 
-		int deletedCnt = _usersRepository.deleteByUsername("mika");
-		assertThat(deletedCnt).isEqualTo(1);
-		assertThat(_usersRepository.findAll()).hasSize(3);
+		assertThat(counts.get(2).getUsername()).isEqualTo("mira2");
+		assertThat(counts.get(2).getTicketsCount()).isEqualTo(0);
 
-		deletedCnt = _usersRepository.deleteByUsername("mika423421");
-		assertThat(deletedCnt).isEqualTo(0);
+		assertThat(counts.get(3).getUsername()).isEqualTo("pera");
+		assertThat(counts.get(3).getTicketsCount()).isEqualTo(5);
+	}
+
+	@Test
+	public void shouldExecuteSpecification()
+	{
+//		final Specification<UserEntity> specification = new UsersByTicketCountSpecification("Petar", "Petrovic");
+		final Specification<UserEntity> specification = new UsersByTicketCountSpecification("TICKET");
+		List<UserEntity> users = _usersRepository.findAll(specification);
+		assertThat(users).hasSize(2);
+		users.forEach(System.out::println);
 	}
 }

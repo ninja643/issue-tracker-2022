@@ -12,6 +12,7 @@ import rs.ac.ni.pmf.web2.issues.model.entity.TicketEntity;
 import rs.ac.ni.pmf.web2.issues.model.entity.UserEntity;
 import rs.ac.ni.pmf.web2.issues.model.inner.Ticket;
 import rs.ac.ni.pmf.web2.issues.repository.TicketsRepository;
+import rs.ac.ni.pmf.web2.issues.repository.UsersRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,8 @@ import rs.ac.ni.pmf.web2.issues.repository.TicketsRepository;
 public class TicketsService
 {
 	private final TicketsRepository _ticketsRepository;
+	private final UsersRepository _usersRepository;
+
 	private final TicketsMapper _ticketsMapper;
 
 	public List<Ticket> getAll()
@@ -43,8 +46,11 @@ public class TicketsService
 			throw new DuplicateTicketException(id);
 		}
 
-		final TicketEntity entity = _ticketsMapper.toEntity(ticket);
+		final String username = ticket.getUsername();
+		final UserEntity userEntity = _usersRepository.findById(username)
+			.orElse(_usersRepository.save(UserEntity.builder().username(username).build()));
 
+		final TicketEntity entity = _ticketsMapper.toEntity(ticket, userEntity);
 
 		final TicketEntity savedTicket = _ticketsRepository.save(entity);
 
@@ -59,7 +65,11 @@ public class TicketsService
 			throw new TicketNotFoundException(id);
 		}
 
-		final TicketEntity savedTicket = _ticketsRepository.save(_ticketsMapper.toEntity(ticket));
+		final String username = ticket.getUsername();
+		final UserEntity userEntity = _usersRepository.findById(username)
+			.orElseThrow(() -> new RuntimeException("User " + username + " does not exist"));
+
+		final TicketEntity savedTicket = _ticketsRepository.save(_ticketsMapper.toEntity(ticket, userEntity));
 		return _ticketsMapper.fromEntity(savedTicket);
 	}
 
